@@ -1,14 +1,22 @@
 package com.rica.ricaapi.investigadores;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
 
 @Component
 public class InvestigadorFactory {
 
     private final InvestigadorRepository investigadorRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public InvestigadorFactory(InvestigadorRepository investigadorRepository) {
+    public InvestigadorFactory(
+            InvestigadorRepository investigadorRepository,
+            ApplicationEventPublisher eventPublisher) {
+
         this.investigadorRepository = investigadorRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Investigador crear(
@@ -27,11 +35,20 @@ public class InvestigadorFactory {
                             + correo.valor());
         }
 
-        return new Investigador(
+        Investigador investigador = new Investigador(
                 null,
                 nombreCompleto,
                 correo,
                 grupoInvestigacion
         );
+
+        eventPublisher.publishEvent(
+                new InvestigadorRegistrado(
+                        correo.valor(),
+                        Instant.now()
+                )
+        );
+
+        return investigador;
     }
 }
