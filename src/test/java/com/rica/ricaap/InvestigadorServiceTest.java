@@ -2,7 +2,9 @@ package com.rica.ricaapi;
 
 import com.rica.ricaapi.compartido.RecursoNoEncontradoException;
 import com.rica.ricaapi.investigadores.CorreoDuplicadoException;
+import com.rica.ricaapi.investigadores.CorreoInstitucional;
 import com.rica.ricaapi.investigadores.Investigador;
+import com.rica.ricaapi.investigadores.InvestigadorFactory;
 import com.rica.ricaapi.investigadores.InvestigadorRepository;
 import com.rica.ricaapi.investigadores.InvestigadorService;
 import org.junit.jupiter.api.Test;
@@ -24,22 +26,34 @@ class InvestigadorServiceTest {
     @Mock
     private InvestigadorRepository investigadorRepository;
 
+    @Mock
+    private InvestigadorFactory investigadorFactory;
+
     @InjectMocks
     private InvestigadorService investigadorService;
 
     @Test
     void buscarPorIdDevuelveElInvestigadorCuandoExiste() {
-        Investigador investigador = new Investigador(1L, "Ana Torres", "ana.torres@uptc.edu.co", "GIT-UPTC");
-        when(investigadorRepository.findById(1L)).thenReturn(Optional.of(investigador));
+        Investigador investigador = new Investigador(
+                1L,
+                "Ana Torres",
+                new CorreoInstitucional("ana.torres@uptc.edu.co"),
+                "GIT-UPTC"
+        );
+
+        when(investigadorRepository.findById(1L))
+                .thenReturn(Optional.of(investigador));
 
         Investigador resultado = investigadorService.buscarPorId(1L);
 
-        assertThat(resultado.getNombreCompleto()).isEqualTo("Ana Torres");
+        assertThat(resultado.getNombreCompleto())
+                .isEqualTo("Ana Torres");
     }
 
     @Test
     void buscarPorIdLanzaExcepcionCuandoNoExiste() {
-        when(investigadorRepository.findById(99L)).thenReturn(Optional.empty());
+        when(investigadorRepository.findById(99L))
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> investigadorService.buscarPorId(99L))
                 .isInstanceOf(RecursoNoEncontradoException.class)
@@ -48,13 +62,29 @@ class InvestigadorServiceTest {
 
     @Test
     void registrarRechazaCorreoInstitucionalDuplicado() {
-        Investigador nuevo = new Investigador(null, "Carlos Ruiz", "carlos.ruiz@uptc.edu.co", "GIT-UPTC");
-        when(investigadorRepository.existsByCorreoInstitucional("carlos.ruiz@uptc.edu.co")).thenReturn(true);
 
-        assertThatThrownBy(() -> investigadorService.registrar(nuevo))
+        when(investigadorFactory.crear(
+                "Carlos Ruiz",
+                "carlos.ruiz@uptc.edu.co",
+                "GIT-UPTC"
+        )).thenThrow(
+                new CorreoDuplicadoException(
+                        "Ya existe un investigador registrado con el correo "
+                                + "carlos.ruiz@uptc.edu.co"
+                )
+        );
+
+        assertThatThrownBy(() -> investigadorService.registrar(
+                "Carlos Ruiz",
+                "carlos.ruiz@uptc.edu.co",
+                "GIT-UPTC"
+        ))
                 .isInstanceOf(CorreoDuplicadoException.class);
 
-        verify(investigadorRepository).existsByCorreoInstitucional("carlos.ruiz@uptc.edu.co");
+        verify(investigadorFactory).crear(
+                "Carlos Ruiz",
+                "carlos.ruiz@uptc.edu.co",
+                "GIT-UPTC"
+        );
     }
-
 }

@@ -1,10 +1,10 @@
 package com.rica.ricaapi.investigadores;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,13 +31,16 @@ public class InvestigadorController {
     }
 
     @PostMapping
-    public ResponseEntity<InvestigadorResponse> registrar(@Valid @RequestBody InvestigadorRequest request) {
-        Investigador investigador = InvestigadorMapper.aEntidad(request);
-        Investigador guardado = investigadorService.registrar(investigador);
-        InvestigadorResponse response = InvestigadorMapper.aResponse(guardado);
-        return ResponseEntity
-                .created(URI.create("/api/investigadores/" + guardado.getId()))
-                .body(response);
-    }
+    public ResponseEntity<InvestigadorResponse> registrar(
+            @Valid @RequestBody InvestigadorRequest request) {
 
+        Investigador investigador = investigadorService.registrar(
+                request.getNombreCompleto(),
+                request.getCorreoInstitucional(),
+                request.getGrupoInvestigacion()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(InvestigadorMapper.aResponse(investigador));
+    }
 }
