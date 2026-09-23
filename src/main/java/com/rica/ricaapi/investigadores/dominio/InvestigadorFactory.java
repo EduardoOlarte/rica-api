@@ -1,7 +1,9 @@
 package com.rica.ricaapi.investigadores.dominio;
 
 import com.rica.ricaapi.investigadores.puertos.salida.RepositorioInvestigadores;
+import org.springframework.stereotype.Component;
 
+@Component
 public class InvestigadorFactory {
 
     private final RepositorioInvestigadores repositorioInvestigadores;
