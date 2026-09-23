@@ -1,5 +1,7 @@
 package com.rica.ricaapi.investigadores;
 
+import com.rica.ricaapi.investigadores.dominio.Investigador;
+
 public class InvestigadorMapper {
 
     private InvestigadorMapper() {

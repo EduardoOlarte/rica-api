@@ -1,5 +1,6 @@
 package com.rica.ricaapi.investigadores;
 
+import com.rica.ricaapi.investigadores.dominio.InvestigadorRegistrado;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;

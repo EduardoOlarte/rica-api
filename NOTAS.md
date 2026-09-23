@@ -57,3 +57,17 @@ Agregar directamente un `List<Publicacion>` dentro de `Investigador` rompería e
 Esto podría generar conflictos entre transacciones que modificaran simultáneamente las publicaciones de un investigador y dificultaría que `Publicacion` evolucionara o se desplegara de manera independiente.
 
 Por esta razón, `Investigador` y `Publicacion` se mantienen como Agregados separados y `Publicacion` referencia al investigador únicamente mediante su identidad representada por `investigadorCorreo`.
+
+## Auditoría de puertos y adaptadores
+
+InvestigadorRepository:
+Es un puerto secundario porque el núcleo inicia la llamada para consultar o almacenar investigadores. La persistencia es una necesidad del núcleo que será atendida por un adaptador externo.
+
+InvestigadorController:
+Es un adaptador primario porque recibe solicitudes externas HTTP y las convierte en llamadas hacia la aplicación. La tecnología concreta que envuelve es Spring MVC mediante endpoints REST.
+
+InvestigadorService:
+Actualmente es una clase concreta que es llamada directamente por InvestigadorController. Para tener un puerto primario explícito falta la interfaz InvestigadorUseCase, que definirá las operaciones que el exterior puede solicitar al núcleo.
+
+InvestigadorFactory:
+Pertenece al núcleo del sistema. Su función está relacionada con la creación del objeto de dominio y no depende de tecnologías externas como HTTP, Spring o JPA. Por esta razón puede utilizarse sin infraestructura.

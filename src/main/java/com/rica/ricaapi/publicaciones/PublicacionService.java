@@ -1,8 +1,8 @@
 package com.rica.ricaapi.publicaciones;
 
 import com.rica.ricaapi.compartido.RecursoNoEncontradoException;
-import com.rica.ricaapi.investigadores.Investigador;
-import com.rica.ricaapi.investigadores.InvestigadorRepository;
+import com.rica.ricaapi.investigadores.dominio.Investigador;
+import com.rica.ricaapi.investigadores.puertos.salida.RepositorioInvestigadores;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,23 +11,23 @@ import java.util.List;
 public class PublicacionService {
 
     private final PublicacionRepository publicacionRepository;
-    private final InvestigadorRepository investigadorRepository;
+    private final RepositorioInvestigadores repositorioInvestigadores;
     private final LimitePublicacionesAnualesService limitePublicacionesAnualesService;
 
     public PublicacionService(
             PublicacionRepository publicacionRepository,
-            InvestigadorRepository investigadorRepository,
+            RepositorioInvestigadores repositorioInvestigadores,
             LimitePublicacionesAnualesService limitePublicacionesAnualesService) {
 
         this.publicacionRepository = publicacionRepository;
-        this.investigadorRepository = investigadorRepository;
+        this.repositorioInvestigadores = repositorioInvestigadores;
         this.limitePublicacionesAnualesService = limitePublicacionesAnualesService;
     }
 
     public Publicacion registrar(Publicacion publicacion) {
 
-        Investigador investigador = investigadorRepository
-                .findByCorreoInstitucional_Valor(publicacion.getInvestigadorCorreo())
+        Investigador investigador = repositorioInvestigadores
+            .buscarPorCorreo(publicacion.getInvestigadorCorreo())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe un investigador con correo "
                                 + publicacion.getInvestigadorCorreo()));

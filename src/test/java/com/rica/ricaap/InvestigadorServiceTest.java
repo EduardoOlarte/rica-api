@@ -1,12 +1,12 @@
 package com.rica.ricaapi;
 
 import com.rica.ricaapi.compartido.RecursoNoEncontradoException;
-import com.rica.ricaapi.investigadores.CorreoDuplicadoException;
-import com.rica.ricaapi.investigadores.CorreoInstitucional;
-import com.rica.ricaapi.investigadores.Investigador;
-import com.rica.ricaapi.investigadores.InvestigadorFactory;
-import com.rica.ricaapi.investigadores.InvestigadorRepository;
-import com.rica.ricaapi.investigadores.InvestigadorService;
+import com.rica.ricaapi.investigadores.dominio.CorreoDuplicadoException;
+import com.rica.ricaapi.investigadores.dominio.CorreoInstitucional;
+import com.rica.ricaapi.investigadores.dominio.Investigador;
+import com.rica.ricaapi.investigadores.dominio.InvestigadorFactory;
+import com.rica.ricaapi.investigadores.aplicacion.InvestigadorService;
+import com.rica.ricaapi.investigadores.puertos.salida.RepositorioInvestigadores;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class InvestigadorServiceTest {
 
     @Mock
-    private InvestigadorRepository investigadorRepository;
+    private RepositorioInvestigadores repositorioInvestigadores;
 
     @Mock
     private InvestigadorFactory investigadorFactory;
@@ -41,7 +41,7 @@ class InvestigadorServiceTest {
                 "GIT-UPTC"
         );
 
-        when(investigadorRepository.findById(1L))
+        when(repositorioInvestigadores.buscarPorId(1L))
                 .thenReturn(Optional.of(investigador));
 
         Investigador resultado = investigadorService.buscarPorId(1L);
@@ -52,7 +52,7 @@ class InvestigadorServiceTest {
 
     @Test
     void buscarPorIdLanzaExcepcionCuandoNoExiste() {
-        when(investigadorRepository.findById(99L))
+        when(repositorioInvestigadores.buscarPorId(99L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> investigadorService.buscarPorId(99L))
