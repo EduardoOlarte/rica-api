@@ -71,3 +71,17 @@ Actualmente es una clase concreta que es llamada directamente por InvestigadorCo
 
 InvestigadorFactory:
 Pertenece al núcleo del sistema. Su función está relacionada con la creación del objeto de dominio y no depende de tecnologías externas como HTTP, Spring o JPA. Por esta razón puede utilizarse sin infraestructura.
+
+# 5. Corte de `rica-api` en servicios
+
+Antes de mover código, se define el destino de cada paquete y clase actual:
+
+| Paquete / clase actual | Destino |
+|---|---|
+| `investigadores.*` (dominio, aplicación e infraestructura) | `investigadores-service` |
+| `publicaciones.*` | `publicaciones-service` |
+| `compartido.GlobalExceptionHandler`, `RecursoNoEncontradoException` | Se duplica en ambos servicios. Cada servicio necesita su propio manejo de errores; ya no existe un único `@ControllerAdvice` compartido. |
+| `plataforma.StatusController`, `CorsConfig` | Se duplica en ambos servicios y se adapta para que cada servicio exponga su propio `/api/status`. |
+| `plataforma.ArranqueInformativo`, `SaludoInstitucionalService` | Se descarta. Era una demostración del Tutorial 2 sobre IoC/DI y no aporta valor de negocio real para mantenerla en ambos servicios. |
+
+La duplicación de `compartido` y `plataforma` es una consecuencia del despliegue independiente y de la estrategia Database per Service. Compartir un `@ControllerAdvice` requeriría una librería o un módulo común versionado por separado, es decir, un *shared kernel*. Esa es una decisión arquitectónica real que este corte obliga a considerar, pero queda fuera del alcance de este taller.
